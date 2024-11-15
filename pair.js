@@ -77,9 +77,9 @@ router.get('/', async (req, res) => {
 ┌─❖
 │🪀 Hey
 └┬❖  
-┌┤✑  Thanks for using PAUL Bot
+┌┤> ✑  Thanks for using PAUL SESSION GENERATOR
 │└────────────┈ ⳹        
-│©2023-2024 BAD-BOI 
+│> ©2023-2024 PAUL SESSION GENERATOR
 └─────────────────┈ ⳹\n\n ` }, {quoted: classic });
 
         await delay(100);
