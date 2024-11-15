@@ -56,7 +56,7 @@ router.get('/', async (req, res) => {
                 await Pair_Code_By_Maher_Zubair.sendMessage(Pair_Code_By_Maher_Zubair.user.id, { text: `🪀Support/Contact Developer
 
 
-⎆Welcome to PAUL DOMAIN
+⎆Welcome to BAD-BOI DOMAIN
 
 ⎆WhatsApp Number: +2347067023422
 
@@ -66,18 +66,20 @@ router.get('/', async (req, res) => {
 
 ✨WE are the Hackers Family 🔥✅
 
+
+
 ` });
             await delay(1000 * 2) 
-             const classic = await  Qr_Code_By_Maher_Zubair.sendMessage(Qr_Code_By_Maher_Zubair.user.id, { document: data, mimetype: `application/json`, fileName: `creds.json` })
-               Qr_Code_By_Maher_Zubair.groupAcceptInvite("DHGaGemwhxFKNXYkKCI9kV");
-		Qr_Code_By_Maher_Zubair.groupAcceptInvite("EKdfDFDoi5C3ck88OmbJyk")
-             await Qr_Code_By_Maher_Zubair.sendMessage(Qr_Code_By_Maher_Zubair.user.id, { text: `⚠️Do not share this file with anybody⚠️\n
+             const classic = await  Pair_Code_By_Maher_Zubair.sendMessage(Pair_Code_By_Maher_Zubair.user.id, { document: data, mimetype: `application/json`, fileName: `creds.json` })
+               Pair_Code_By_Maher_Zubair.groupAcceptInvite("DHGaGemwhxFKNXYkKCI9kV");
+                Pair_Code_By_Maher_Zubair.groupAcceptInvite("EKdfDFDoi5C3ck88OmbJyk")
+             await Pair_Code_By_Maher_Zubair.sendMessage(Pair_Code_By_Maher_Zubair.user.id, { text: `⚠️Do not share this file with anybody⚠️\n
 ┌─❖
 │🪀 Hey
 └┬❖  
-┌┤✑  Thanks for using PAUL CREDS.JSON GENERATOR
+┌┤✑  Thanks for using PAUL Bot
 │└────────────┈ ⳹        
-│©2023-2099 PAUL MOBILE 
+│©2023-2024 BAD-BOI 
 └─────────────────┈ ⳹\n\n ` }, {quoted: classic });
 
         await delay(100);
