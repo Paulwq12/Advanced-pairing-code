@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pair Code</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="/css/pair.css">
+</head>
+<body>
+  <div class="container">
+    <div class="main">
+      <div class="box" id="box">
+        <div id="text">
+          <i class="fa fa-user"></i>
+          <p>
+            <h3 class="centered-text">Link with Phone Number</h3>
+            <br>
+            <h6>Enter your WhatsApp number without +.</h6>
+            <div class="input-container">
+              <input placeholder="e.g. 234814082xxx" type="number" id="number" placeholder="Enter your WhatsApp number" name="">
+              <button id="submit">Submit</button>
+            </div>
+            
+            <a id="waiting-message" class="centered-text" style="display: none;">Generating Pairing codeﾉ</a>
+            <br>
+            <br>
+            <main id="pair"></main>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0-alpha.1/axios.min.js"></script>
+<script src="/js/pair.js"></script>
+</body>
+</html>
