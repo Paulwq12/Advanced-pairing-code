@@ -1,96 +1,31 @@
-<!DOCTYPE html>
+
 <html lang="en">
 <head>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1737874207490861"
+            crossorigin="anonymous"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Generator</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Outfit', sans-serif;
-            background: linear-gradient(-45deg, #4a90e2, #3ac569, #9b59b6, #e74c3c);
-            background-size: 400% 400%;
-            animation: gradient 15s ease infinite;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-
-        @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        #container {
-            background-color: #000;
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            width: 300px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        #container h1 {
-            color: #fff;
-            margin-bottom: 10px;
-        }
-
-        #qr-image {
-            border-radius: 10px;
-            margin-bottom: 10px;
-            max-width: 100%;
-            height: auto;
-        }
-
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            margin-top: 10px;
-            background-color: #3498db;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-
-        .button:hover {
-            background-color: #2980b9;
-        }
-
-        progress {
-            width: 100%;
-            height: 10px;
-            border-radius: 5px;
-            margin-top: 10px;
-        }
-    </style>
+    <title>PAUL QR SCANER</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&amp;display=swap" rel="stylesheet">
+    <title>QR</title>
+  
 </head>
 <body>
-    <div id="container">
-        <h1>QR Code</h1>
-        <img id="qr-image" src="/qr" alt="QR Code">
-        <progress id="progressBar" value="0" max="30"></progress>
-        <p id="status">Scan the QR code within 30 seconds!</p>
-        <a class="button" href="javascript:location.reload()">Reload</a>
+<div class="bg">
+    <div id="content">
+        <div id="QR-content">
+            <img id="qr-image" src="/qr" alt="QR CODE">
+        </div>
+        <div id="title-container">
+            <h2 id="main"> PAUL QR SESSION BOT</h2>
+            <p class="legend" id="legend">Scan The QR Code</p>
+        </div>
+        <div id="description-container">
+            <p id="semi" class="legend"></p>
+            <progress value="0" max="30" id="progressBar"></progress>
+        </div>
+        <a href="javascript:history.go(0)" class="reload-button">Reload Page</a>
     </div>
-    <script>
-        let timeLeft = 30;
-        const progressBar = document.getElementById('progressBar');
-        const statusText = document.getElementById('status');
-
-        const timer = setInterval(() => {
-            if (timeLeft <= 0) {
-                clearInterval(timer);
-                progressBar.remove();
-                statusText.textContent = 'QR Code expired! Reload to generate a new one.';
-            } else {
-                progressBar.value = 30 - timeLeft;
-                timeLeft--;
-            }
-        }, 1000);
-    </script>
+</div>
 </body>
 </html>
