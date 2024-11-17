@@ -1,16 +1,19 @@
 body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    margin: 0;
-    background-image: url("https://telegra.ph/file/dc73e16b9988c7c56b56f.jpg"); /* Set the background image */
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
-    font-family: Arial, sans-serif;
-  } 
+      background-color: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      color: white;
+    }
+
+    {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "url": "https://railway.app",
+            "logo": "https://telegra.ph/file/4cf337052c09eec06f3e8.jpg"
+    }
 
   .btn {
     --color: #e5f5f1;
