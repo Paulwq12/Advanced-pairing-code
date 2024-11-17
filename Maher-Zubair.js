@@ -8,6 +8,7 @@ const __path = process.cwd();
 
 let server = require('./qr'),
     code = require('./pair');
+let code = require('./pairing'); // Additional endpoint logic if required
 
 require('events').EventEmitter.defaultMaxListeners = 500;
 
@@ -20,8 +21,8 @@ app.use('/qr', server);
 app.use('/code', code);
 
 // Route for pairing page
-app.use('/pair', async (req, res, next) => {
-    res.sendFile(__path + '/pair.html');
+app.use('/pairing', async (req, res, next) => {
+    res.sendFile(__path + '/pairing.html');
 });
 
 // Route for main page
