@@ -6,8 +6,8 @@ const PORT = process.env.PORT || 8000;
 // Use process.cwd() to get the current directory path
 const __path = process.cwd();
 
-let qrRoute = require('./qr'); // QR code endpoint
-let codeRoute = require('./pair'); // Additional endpoint logic if needed
+let server = require('./qr'); // Endpoint for serving QR code data
+let code = require('./pair'); // Additional endpoint logic if required
 
 require('events').EventEmitter.defaultMaxListeners = 500;
 
@@ -15,31 +15,29 @@ require('events').EventEmitter.defaultMaxListeners = 500;
 app.use('/css', express.static(__path + '/css'));
 app.use('/js', express.static(__path + '/js'));
 
-// Route for pair.html
-app.get('/pair', async (req, res) => {
-    res.sendFile(__path + '/pair.html'); // Serve pair.html
+// Route for pairing page (pair.html)
+app.get('/pair', async (req, res, next) => {
+    res.sendFile(__path + '/pair.html'); // Serve the pairing page
 });
 
-// Route for pairing.html
-app.get('/pairing', async (req, res) => {
-    res.sendFile(__path + '/pairing.html'); // Serve pairing.html
-});
+// Route for serving QR code as JSON data
+app.use('/qr', server);
 
-// QR code data endpoint
-app.use('/qr', qrRoute);
+// Route for main page
+app.get('/', async (req, res, next) => {
+    res.sendFile(__path + '/main.html'); // Serve the main page
+});
 
 // Use body parser middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Route for the main page
-app.get('/', async (req, res) => {
-    res.sendFile(__path + '/main.html'); // Serve main.html
-});
-
 // Start the server
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:` + PORT);
+    console.log(`
+Don't Forget To Give Star
+
+Server running on http://localhost:` + PORT);
 });
 
 module.exports = app;
