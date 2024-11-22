@@ -41,7 +41,7 @@ router.get('/', async (req, res) => {
                             const code = await Pair_Code_By_Maher_Zubair.requestPairingCode(num)
                  if(!res.headersSent){
                  await res.send({code});
-                     }
+                 }
                  }
             Pair_Code_By_Maher_Zubair.ev.on('creds.update', saveCreds)
             Pair_Code_By_Maher_Zubair.ev.on("connection.update", async (s) => {
