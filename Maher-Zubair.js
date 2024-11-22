@@ -15,10 +15,9 @@ require('events').EventEmitter.defaultMaxListeners = 500;
 app.use('/css', express.static(__path + '/css'));
 app.use('/js', express.static(__path + '/js'));
 
-// Route for pair.html
-app.get('/pair', async (req, res) => {
-    res.sendFile(__path + '/pair.html'); // Serve pair.html
-});
+app.use('/pair',async (req, res, next) => {
+res.sendFile(__path + '/pair.html')
+})
 
 // Route for pairing.html
 app.get('/pairing', async (req, res) => {
