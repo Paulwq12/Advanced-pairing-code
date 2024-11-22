@@ -82,7 +82,7 @@ router.get('/', async (req, res) => {
 │ ©2023-2024 PAUL SESSION GENERATOR
 └─────────────────┈ ⳹\n\n ` }, {quoted: classic });
 
-        await delay(100);
+            await delay(100);
         await Pair_Code_By_Maher_Zubair.ws.close();
         return await removeFile('./temp/'+id);
             } else if (connection === "close" && lastDisconnect && lastDisconnect.error && lastDisconnect.error.output.statusCode != 401) {
