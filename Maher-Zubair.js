@@ -7,8 +7,8 @@ const PORT = process.env.PORT || 8000;
 const __path = process.cwd();
 
 let qrRoute = require('./qr'); // QR code endpoint
-let codeRoute = require('./pair'); // Additional endpoint logic if needed
-
+ code = require('./pair');
+app.use('/code', code);
 require('events').EventEmitter.defaultMaxListeners = 500;
 
 // Serve static files like CSS, JS, and images from the 'css' and 'js' directories
