@@ -21,7 +21,7 @@ app.get('/pair', async (req, res) => {
 });
 
 // Route for pairing.html
-app.get('/pairing', async (req, res) => {
+app.get('/qr', async (req, res) => {
     res.sendFile(__path + '/pairing.html'); // Serve pairing.html
 });
 
