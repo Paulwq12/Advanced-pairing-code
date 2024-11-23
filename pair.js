@@ -127,3 +127,4 @@ router.get('/', async (req, res) => {
 
     return await SIGMA_MD_PAIR_CODE();
 });
+module.exports = router
