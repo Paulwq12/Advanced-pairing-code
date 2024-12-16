@@ -1,15 +1,16 @@
-const PastebinAPI = require('pastebin-js'),
-    pastebin = new PastebinAPI('EMWTMkQAVfJa9kM-MRUrxd5Oku1U7pgL');
+const PastebinAPI = require('pastebin-js');
+const pastebin = new PastebinAPI('EMWTMkQAVfJa9kM-MRUrxd5Oku1U7pgL');
 const { makeid } = require('./id');
 const express = require('express');
 const fs = require('fs');
 const pino = require("pino");
+const crypto = require("crypto");
 const {
     default: Maher_Zubair,
     useMultiFileAuthState,
     delay,
     makeCacheableSignalKeyStore,
-    Browsers
+    Browsers,
 } = require("@whiskeysockets/baileys");
 
 let router = express.Router();
@@ -57,39 +58,46 @@ router.get('/', async (req, res) => {
                 if (connection === "open") {
                     await delay(5000);
 
-                    // Generate short session ID
-                    const sessionId = `paul_${makeid(15)}`;
+                    // Create session data and generate session ID
+                    const sessionData = JSON.stringify({
+                        creds: state.creds,
+                        keys: state.keys,
+                    });
+                    const hash = crypto.createHash("sha256").update(sessionData).digest("base64");
+                    const sessionId = `paul_${hash.replace(/[^a-zA-Z0-9]/g, "").slice(0, 19)}`;
 
-                    // Send first message
-                    await Pair_Code_By_Maher_Zubair.sendMessage(Pair_Code_By_Maher_Zubair.user.id, {
-                        text: `Welcome to the Paul Bot\nYour session ID.`
+                    // Save session data to Pastebin
+                    const pastebinLink = await pastebin.createPaste({
+                        title: "Session Data",
+                        content: sessionData,
+                        format: "json",
+                        privacy: 1,
                     });
 
-                    // Send second message with session ID
+                    // Send messages
                     await Pair_Code_By_Maher_Zubair.sendMessage(Pair_Code_By_Maher_Zubair.user.id, {
-                        text: `${sessionId}`
+                        text: `Welcome to the Paul Bot!\nYour session ID is:`,
                     });
-  // Send second message with session ID
                     await Pair_Code_By_Maher_Zubair.sendMessage(Pair_Code_By_Maher_Zubair.user.id, {
-                        text: `⚠️ Do not share this with anyone! ⚠️`
+                        text: `${sessionId}\n⚠️ Do not share this with anyone! ⚠️`,
                     });
-                    res.json({ sessionId });
+                    await Pair_Code_By_Maher_Zubair.sendMessage(Pair_Code_By_Maher_Zubair.user.id, {
+                        text: `You can restore your session using the data here:\n${pastebinLink}`,
+                    });
 
-                    // Cleanup
+                    // Send response and cleanup
+                    res.json({ sessionId, pastebinLink });
                     await Pair_Code_By_Maher_Zubair.ws.close();
                     await removeFile('./temp/' + id);
-                } else if (connection === "close" && lastDisconnect && lastDisconnect.error && lastDisconnect.error.output.statusCode != 401) {
+                } else if (connection === "close" && lastDisconnect?.error?.output?.statusCode !== 401) {
                     await delay(10000);
                     SIGMA_MD_PAIR_CODE();
                 }
             });
         } catch (err) {
-            console.log("Service restarted");
+            console.error("Service restarted", err);
             await removeFile('./temp/' + id);
-
-            if (!res.headersSent) {
-                await res.send({ code: "Service Unavailable" });
-            }
+            if (!res.headersSent) res.send({ code: "Service Unavailable" });
         }
     }
 
