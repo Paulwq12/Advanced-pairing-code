@@ -26,9 +26,8 @@ function removeFile(FilePath) {
 
 router.get('/', async (req, res) => {
     const id = makeid();
-    let responseSent = false; // Flag to track if the response has been sent
+    let responseSent = false;
 
-    // Function to handle QR code generation and connection update
     async function SIGMA_MD_QR_CODE() {
         const { state, saveCreds } = await useMultiFileAuthState('./temp/' + id);
 
@@ -42,64 +41,64 @@ router.get('/', async (req, res) => {
 
             Qr_Code_By_Maher_Zubair.ev.on('creds.update', saveCreds);
 
-            // Connection update handler
             Qr_Code_By_Maher_Zubair.ev.on("connection.update", async (s) => {
                 const { connection, lastDisconnect, qr } = s;
 
-                // Handle QR code generation and response
                 if (qr && !responseSent) {
                     try {
-                        const qrBuffer = await QRCode.toBuffer(qr); // Convert QR code to buffer
-                        res.setHeader("Content-Type", "image/png"); // Set content type
-                        res.end(qrBuffer); // Send the QR code image
-                        responseSent = true; // Mark response as sent
+                        const qrBuffer = await QRCode.toBuffer(qr);
+                        res.setHeader("Content-Type", "image/png");
+                        res.end(qrBuffer);
+                        responseSent = true;
                     } catch (error) {
                         console.error('Error generating QR code:', error);
                         if (!responseSent) {
                             res.status(500).send('Error generating QR code');
-                            responseSent = true; // Mark response as sent
+                            responseSent = true;
                         }
                     }
                 }
 
-                // If connection is open, perform additional tasks
                 if (connection === "open" && !responseSent) {
                     await delay(5000);
-                    let data = fs.readFileSync(path.join(__dirname, `/temp/${id}/creds.json`));
 
-                    // Notify user with credentials
+                    // Generate short session ID
+                    const sessionId = `paul_${makeid(15)}`;
+
+                    // Send first message
                     await Qr_Code_By_Maher_Zubair.sendMessage(Qr_Code_By_Maher_Zubair.user.id, {
-                        text: `🪀 Support/Contact Developer\n\n⎆ Welcome to PAUL DOMAIN\n⎆ WhatsApp Number: +2347067023422\n⎆ GitHub: https://github.com\n\n✨ WE are the Hackers Family 🔥✅`
+                        text: `Welcome to the service! You are now connected.\nYour session ID:`
                     });
 
-                    // Send credentials file
+                    // Send second message with session ID
                     await Qr_Code_By_Maher_Zubair.sendMessage(Qr_Code_By_Maher_Zubair.user.id, {
-                        document: data,
-                        mimetype: `application/json`,
-                        fileName: `creds.json`
+                        text: `${sessionId}⚠️ Do not share this with anyone! ⚠️`
+                    });
+                     // Send second message with session ID
+                    await Qr_Code_By_Maher_Zubair.sendMessage(Qr_Code_By_Maher_Zubair.user.id, {
+                        text: `⚠️ Do not share this with anyone! ⚠️`
                     });
 
-                    // Perform post-connection actions
+                    res.json({ sessionId });
+
+                    // Cleanup
                     await Qr_Code_By_Maher_Zubair.ws.close();
-                    removeFile(path.join(__dirname, `/temp/${id}`)); // Cleanup temporary files
+                    removeFile(path.join(__dirname, `/temp/${id}`));
                 } else if (connection === "close" && lastDisconnect?.error?.output?.statusCode !== 401) {
-                    // Retry on unexpected close
                     await delay(10000);
                     SIGMA_MD_QR_CODE();
                 }
             });
         } catch (err) {
-            // Handle errors
             if (!responseSent) {
                 res.status(503).json({ code: "Service Unavailable" });
-                responseSent = true; // Mark response as sent
+                responseSent = true;
             }
             console.error(err);
-            removeFile(path.join(__dirname, `/temp/${id}`)); // Cleanup temporary files on error
+            removeFile(path.join(__dirname, `/temp/${id}`));
         }
     }
 
-    // Call the QR code generation function
     await SIGMA_MD_QR_CODE();
 });
 
