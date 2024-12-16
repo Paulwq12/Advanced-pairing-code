@@ -1,6 +1,7 @@
 const { makeid } = require('./id');
 const express = require('express');
 const fs = require('fs');
+const crypto = require('crypto'); // Ensure this is at the top of your file
 const pino = require("pino");
 const {
     default: Maher_Zubair,
