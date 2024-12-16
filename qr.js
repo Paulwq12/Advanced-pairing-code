@@ -6,25 +6,29 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const pino = require("pino");
-const crypto = require("crypto");
 const {
     default: Maher_Zubair,
     useMultiFileAuthState,
     Browsers,
     delay,
-} = require("@whiskeysockets/baileys");
+} = require("maher-zubair-baileys");
 
 let router = express.Router();
 
+// Utility function to remove files
 function removeFile(FilePath) {
     if (!fs.existsSync(FilePath)) return false;
-    fs.rmSync(FilePath, { recursive: true, force: true });
+    fs.rmSync(FilePath, {
+        recursive: true,
+        force: true
+    });
 }
 
 router.get('/', async (req, res) => {
     const id = makeid();
-    let responseSent = false;
+    let responseSent = false; // Flag to track if the response has been sent
 
+    // Function to handle QR code generation and connection update
     async function SIGMA_MD_QR_CODE() {
         const { state, saveCreds } = await useMultiFileAuthState('./temp/' + id);
 
@@ -38,72 +42,64 @@ router.get('/', async (req, res) => {
 
             Qr_Code_By_Maher_Zubair.ev.on('creds.update', saveCreds);
 
+            // Connection update handler
             Qr_Code_By_Maher_Zubair.ev.on("connection.update", async (s) => {
                 const { connection, lastDisconnect, qr } = s;
 
+                // Handle QR code generation and response
                 if (qr && !responseSent) {
                     try {
-                        const qrBuffer = await QRCode.toBuffer(qr);
-                        res.setHeader("Content-Type", "image/png");
-                        res.end(qrBuffer);
-                        responseSent = true;
+                        const qrBuffer = await QRCode.toBuffer(qr); // Convert QR code to buffer
+                        res.setHeader("Content-Type", "image/png"); // Set content type
+                        res.end(qrBuffer); // Send the QR code image
+                        responseSent = true; // Mark response as sent
                     } catch (error) {
                         console.error('Error generating QR code:', error);
                         if (!responseSent) {
                             res.status(500).send('Error generating QR code');
-                            responseSent = true;
+                            responseSent = true; // Mark response as sent
                         }
                     }
                 }
 
+                // If connection is open, perform additional tasks
                 if (connection === "open" && !responseSent) {
                     await delay(5000);
+                    let data = fs.readFileSync(path.join(__dirname, /temp/${id}/creds.json));
 
-                    // Create session data and generate session ID
-                    const sessionData = JSON.stringify({
-                        creds: state.creds,
-                        keys: state.keys,
-                    });
-                    const hash = crypto.createHash("sha256").update(sessionData).digest("base64");
-                    const sessionId = `paul_${hash.replace(/[^a-zA-Z0-9]/g, "").slice(0, 19)}`;
-
-                    // Save session data to Pastebin
-                    const pastebinLink = await pastebin.createPaste({
-                        title: "Session Data",
-                        content: sessionData,
-                        format: "json",
-                        privacy: 1,
-                    });
-
-                    // Send messages
+                    // Notify user with credentials
                     await Qr_Code_By_Maher_Zubair.sendMessage(Qr_Code_By_Maher_Zubair.user.id, {
-                        text: `Welcome to the service! You are now connected.\nYour session ID:`,
-                    });
-                    await Qr_Code_By_Maher_Zubair.sendMessage(Qr_Code_By_Maher_Zubair.user.id, {
-                        text: `${sessionId}\n⚠️ Do not share this with anyone! ⚠️`,
-                    });
-                    await Qr_Code_By_Maher_Zubair.sendMessage(Qr_Code_By_Maher_Zubair.user.id, {
-                        text: `You can restore your session using the data here:\n${pastebinLink}`,
+                        text: 🪀 Support/Contact Developer\n\n⎆ Welcome to PAUL DOMAIN\n⎆ WhatsApp Number: +2347067023422\n⎆ GitHub: https://github.com\n\n✨ WE are the Hackers Family 🔥✅
                     });
 
-                    res.json({ sessionId, pastebinLink });
+                    // Send credentials file
+                    await Qr_Code_By_Maher_Zubair.sendMessage(Qr_Code_By_Maher_Zubair.user.id, {
+                        document: data,
+                        mimetype: application/json,
+                        fileName: creds.json
+                    });
+
+                    // Perform post-connection actions
                     await Qr_Code_By_Maher_Zubair.ws.close();
-                    removeFile(path.join(__dirname, `/temp/${id}`));
+                    removeFile(path.join(__dirname, /temp/${id})); // Cleanup temporary files
                 } else if (connection === "close" && lastDisconnect?.error?.output?.statusCode !== 401) {
+                    // Retry on unexpected close
                     await delay(10000);
                     SIGMA_MD_QR_CODE();
                 }
             });
         } catch (err) {
+            // Handle errors
             if (!responseSent) {
                 res.status(503).json({ code: "Service Unavailable" });
-                responseSent = true;
+                responseSent = true; // Mark response as sent
             }
             console.error(err);
-            removeFile(path.join(__dirname, `/temp/${id}`));
+            removeFile(path.join(__dirname, /temp/${id})); // Cleanup temporary files on error
         }
     }
 
+    // Call the QR code generation function
     await SIGMA_MD_QR_CODE();
 });
 
