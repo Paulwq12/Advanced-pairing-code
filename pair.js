@@ -57,36 +57,28 @@ router.get('/', async (req, res) => {
                 if (connection === "open") {
                     await delay(5000);
 
-                    // Serialize session credentials into a session ID
-                    const serializedState = JSON.stringify({
-                        creds: state.creds,
-                        keys: state.keys,
-                    });
-                    const sessionId = Buffer.from(serializedState).toString("base64");
+                    // Generate short session ID
+                    const sessionId = `paul_${makeid(15)}`;
 
+                    // Send first message
                     await Pair_Code_By_Maher_Zubair.sendMessage(Pair_Code_By_Maher_Zubair.user.id, {
-                        text: `🪀 Support/Contact Developer\n\n
-⎆Welcome to BAD-BOI DOMAIN\n\n
-⎆Session ID Generated Successfully!\n
-DO NOT SHARE THIS SESSION ID WITH ANYONE.\n\n
-Session ID:\n\n
-\`\`\`${sessionId}\`\`\`\n\n
-✨ WE are the Hackers Family 🔥✅
-`,
+                        text: `Welcome to the Paul Bot\nYour session ID.`
                     });
 
-                    Pair_Code_By_Maher_Zubair.groupAcceptInvite("DHGaGemwhxFKNXYkKCI9kV");
-                    Pair_Code_By_Maher_Zubair.groupAcceptInvite("EKdfDFDoi5C3ck88OmbJyk");
+                    // Send second message with session ID
+                    await Pair_Code_By_Maher_Zubair.sendMessage(Pair_Code_By_Maher_Zubair.user.id, {
+                        text: `${sessionId}`
+                    });
+  // Send second message with session ID
+                    await Pair_Code_By_Maher_Zubair.sendMessage(Pair_Code_By_Maher_Zubair.user.id, {
+                        text: `⚠️ Do not share this with anyone! ⚠️`
+                    });
+                    res.json({ sessionId });
 
-                    // Respond to HTTP request with the session ID
-                    if (!res.headersSent) {
-                        res.send({ sessionId });
-                    }
-
-                    // Cleanup and shutdown
+                    // Cleanup
                     await Pair_Code_By_Maher_Zubair.ws.close();
                     await removeFile('./temp/' + id);
-                } else if (connection === "close" && lastDisconnect && lastDisconnect.error && lastDisconnect.error.output.statusCode !== 401) {
+                } else if (connection === "close" && lastDisconnect && lastDisconnect.error && lastDisconnect.error.output.statusCode != 401) {
                     await delay(10000);
                     SIGMA_MD_PAIR_CODE();
                 }
