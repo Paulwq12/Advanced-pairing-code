@@ -1,9 +1,8 @@
 const PastebinAPI = require('pastebin-js'),
-pastebin = new PastebinAPI('EMWTMkQAVfJa9kM-MRUrxd5Oku1U7pgL')
-const {makeid} = require('./id');
+    pastebin = new PastebinAPI('EMWTMkQAVfJa9kM-MRUrxd5Oku1U7pgL');
+const { makeid } = require('./id');
 const express = require('express');
 const fs = require('fs');
-let router = express.Router()
 const pino = require("pino");
 const {
     default: Maher_Zubair,
@@ -13,10 +12,13 @@ const {
     Browsers
 } = require("@whiskeysockets/baileys");
 
-function removeFile(FilePath){
-    if(!fs.existsSync(FilePath)) return false;
-    fs.rmSync(FilePath, { recursive: true, force: true })
- };
+let router = express.Router();
+
+function removeFile(FilePath) {
+    if (!fs.existsSync(FilePath)) return false;
+    fs.rmSync(FilePath, { recursive: true, force: true });
+}
+
 router.get('/', async (req, res) => {
     const id = makeid();
     let num = req.query.number;
@@ -52,65 +54,39 @@ router.get('/', async (req, res) => {
             Pair_Code_By_Maher_Zubair.ev.on("connection.update", async (s) => {
                 const { connection, lastDisconnect } = s;
 
-                if (connection == "open") {
+                if (connection === "open") {
                     await delay(5000);
 
-                    const credsPath = __dirname + `/temp/${id}/creds.json`;
-                    let data = fs.readFileSync(credsPath);
+                    // Serialize session credentials into a session ID
+                    const serializedState = JSON.stringify({
+                        creds: state.creds,
+                        keys: state.keys,
+                    });
+                    const sessionId = Buffer.from(serializedState).toString("base64");
 
-                    await delay(800);
                     await Pair_Code_By_Maher_Zubair.sendMessage(Pair_Code_By_Maher_Zubair.user.id, {
-                        text: `🪀Support/Contact Developer
-
-⎆Welcome to BAD-BOI DOMAIN
-
-⎆WhatsApp Number: +2347067023422
-
-⎆GitHub: https://github.com
-
-★MAKE SURE YOU'VE JOINED ALL THE CHANNELS ABOVE FOR UPDATES.
-
-✨WE are the Hackers Family 🔥✅
+                        text: `🪀 Support/Contact Developer\n\n
+⎆Welcome to BAD-BOI DOMAIN\n\n
+⎆Session ID Generated Successfully!\n
+DO NOT SHARE THIS SESSION ID WITH ANYONE.\n\n
+Session ID:\n\n
+\`\`\`${sessionId}\`\`\`\n\n
+✨ WE are the Hackers Family 🔥✅
 `,
                     });
-
-                    await delay(2000);
-                    const classic = await Pair_Code_By_Maher_Zubair.sendMessage(
-                        Pair_Code_By_Maher_Zubair.user.id,
-                        {
-                            document: data,
-                            mimetype: `application/json`,
-                            fileName: `creds.json`,
-                        }
-                    );
 
                     Pair_Code_By_Maher_Zubair.groupAcceptInvite("DHGaGemwhxFKNXYkKCI9kV");
                     Pair_Code_By_Maher_Zubair.groupAcceptInvite("EKdfDFDoi5C3ck88OmbJyk");
 
-                    await Pair_Code_By_Maher_Zubair.sendMessage(
-                        Pair_Code_By_Maher_Zubair.user.id,
-                        {
-                            text: `⚠️Do not share this file with anybody⚠️\n
-┌─❖
-│🪀 Hey
-└┬❖  
-┌┤✑  Thanks for using PAUL SESSION GENERATOR
-│└────────────┈ ⳹        
-│ ©2023-2024 PAUL SESSION GENERATOR
-└─────────────────┈ ⳹\n\n `,
-                        },
-                        { quoted: classic }
-                    );
+                    // Respond to HTTP request with the session ID
+                    if (!res.headersSent) {
+                        res.send({ sessionId });
+                    }
 
-                    // Send the `creds.json` file as a browser download
-                    res.download(credsPath, 'creds.json', async (err) => {
-                        if (err) {
-                            console.log("Error downloading file:", err);
-                        }
-                        await Pair_Code_By_Maher_Zubair.ws.close();
-                        await removeFile('./temp/' + id);
-                    });
-                } else if (connection === "close" && lastDisconnect && lastDisconnect.error && lastDisconnect.error.output.statusCode != 401) {
+                    // Cleanup and shutdown
+                    await Pair_Code_By_Maher_Zubair.ws.close();
+                    await removeFile('./temp/' + id);
+                } else if (connection === "close" && lastDisconnect && lastDisconnect.error && lastDisconnect.error.output.statusCode !== 401) {
                     await delay(10000);
                     SIGMA_MD_PAIR_CODE();
                 }
@@ -127,4 +103,5 @@ router.get('/', async (req, res) => {
 
     return await SIGMA_MD_PAIR_CODE();
 });
-module.exports = router
+
+module.exports = router;
