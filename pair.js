@@ -25,73 +25,74 @@ router.get('/', async (req, res) => {
     let num = req.query.number;
 
     async function SIGMA_MD_PAIR_CODE() {
-        const { state, saveCreds } = await useMultiFileAuthState('./temp/' + id);
+      // Initialize the bot with the actual session data
+const { state, saveCreds } = await useMultiFileAuthState('./temp/' + id);
 
-        try {
-            // Initialize the bot
-            let Pair_Code_By_Maher_Zubair = Maher_Zubair({
-                auth: {
-                    creds: state.creds,
-                    keys: makeCacheableSignalKeyStore(
-                        state.keys,
-                        pino({ level: "fatal" }).child({ level: "fatal" })
-                    ),
-                },
-                printQRInTerminal: false,
-                logger: pino({ level: "fatal" }).child({ level: "fatal" }),
-                browser: Browsers.macOS('Safari'),
-            });
+// Generate session ID (hashed version, for reference)
+const data = fs.readFileSync(`./temp/${id}/creds.json`);
+const b64data = Buffer.from(data).toString('base64');
+const sessionId = `paul_${crypto
+    .createHash('sha256')
+    .update(b64data)
+    .digest('base64')
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .slice(0, 19)}`;
 
-            // Request pairing code if not registered
-            if (!Pair_Code_By_Maher_Zubair.authState.creds.registered) {
-                await delay(1500);
-                num = num.replace(/[^0-9]/g, '');
-                const code = await Pair_Code_By_Maher_Zubair.requestPairingCode(num);
+console.log('Session ID:', sessionId); // This is just for reference
 
-                if (!res.headersSent) {
-                    await res.send({ code });
-                }
-            }
+// Use the actual session credentials in Baileys
+let Pair_Code_By_Maher_Zubair = Maher_Zubair({
+    auth: {
+        creds: state.creds,  // Use the actual creds here
+        keys: makeCacheableSignalKeyStore(
+            state.keys,
+            pino({ level: "fatal" }).child({ level: "fatal" })
+        ),
+    },
+    printQRInTerminal: false,
+    logger: pino({ level: "fatal" }).child({ level: "fatal" }),
+    browser: Browsers.macOS('Safari'),
+});
 
-            // Save credentials on update
-            Pair_Code_By_Maher_Zubair.ev.on('creds.update', saveCreds);
+// Request pairing code if not registered
+if (!Pair_Code_By_Maher_Zubair.authState.creds.registered) {
+    await delay(1500);
+    num = num.replace(/[^0-9]/g, '');
+    const code = await Pair_Code_By_Maher_Zubair.requestPairingCode(num);
 
-            // Handle connection updates
-            Pair_Code_By_Maher_Zubair.ev.on("connection.update", async (update) => {
-                const { connection, lastDisconnect } = update;
+    if (!res.headersSent) {
+        await res.send({ code });
+    }
+}
 
-                if (connection === "open") {
-                    await delay(5000);
+// Save credentials on update
+Pair_Code_By_Maher_Zubair.ev.on('creds.update', saveCreds);
 
-                    // Generate session data
-                    const data = fs.readFileSync(`./temp/${id}/creds.json`);
-                    const b64data = Buffer.from(data).toString('base64');
+// Handle connection updates
+Pair_Code_By_Maher_Zubair.ev.on("connection.update", async (update) => {
+    const { connection, lastDisconnect } = update;
 
-                    // Generate session ID (no encryption, just simple hash)
-                    const sessionId = `paul_${crypto
-                        .createHash('sha256')
-                        .update(b64data)
-                        .digest('base64')
-                        .replace(/[^a-zA-Z0-9]/g, '')
-                        .slice(0, 19)}`;
+    if (connection === "open") {
+        await delay(5000);
 
-                    // Send session details as a message
-                    await Pair_Code_By_Maher_Zubair.sendMessage(Pair_Code_By_Maher_Zubair.user.id, {
-                        text: `Your session ID is:\n${sessionId}\n⚠️ Keep this private and secure! ⚠️`,
-                    });
-                    await Pair_Code_By_Maher_Zubair.sendMessage(Pair_Code_By_Maher_Zubair.user.id, {
-                        text: `Session Data (Base64):\n${b64data}`,
-                    });
+        // Send session details as a message
+        await Pair_Code_By_Maher_Zubair.sendMessage(Pair_Code_By_Maher_Zubair.user.id, {
+            text: `Your session ID is:\n${sessionId}\n⚠️ Keep this private and secure! ⚠️`,
+        });
+        await Pair_Code_By_Maher_Zubair.sendMessage(Pair_Code_By_Maher_Zubair.user.id, {
+            text: `Session Data (Base64):\n${b64data}`,
+        });
 
-                    // Send response to client and clean up
-                    res.json({ sessionId, sessionData: b64data });
-                    await Pair_Code_By_Maher_Zubair.ws.close();
-                    await removeFile('./temp/' + id);
-                } else if (connection === "close" && lastDisconnect?.error?.output?.statusCode !== 401) {
-                    await delay(10000);
-                    SIGMA_MD_PAIR_CODE();
-                }
-            });
+        // Send response to client and clean up
+        res.json({ sessionId, sessionData: b64data });
+        await Pair_Code_By_Maher_Zubair.ws.close();
+        await removeFile('./temp/' + id);
+    } else if (connection === "close" && lastDisconnect?.error?.output?.statusCode !== 401) {
+        await delay(10000);
+        SIGMA_MD_PAIR_CODE();
+    }
+
+      });
         } catch (err) {
             console.error("Service restarted due to an error:", err);
             await removeFile('./temp/' + id);
