@@ -6,22 +6,19 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const pino = require("pino");
+const crypto = require("crypto");
 const {
     default: Maher_Zubair,
     useMultiFileAuthState,
     Browsers,
     delay,
-} = require("maher-zubair-baileys");
+} = require("@whiskeysockets/baileys");
 
 let router = express.Router();
 
-// Utility function to remove files
 function removeFile(FilePath) {
     if (!fs.existsSync(FilePath)) return false;
-    fs.rmSync(FilePath, {
-        recursive: true,
-        force: true
-    });
+    fs.rmSync(FilePath, { recursive: true, force: true });
 }
 
 router.get('/', async (req, res) => {
@@ -62,26 +59,34 @@ router.get('/', async (req, res) => {
                 if (connection === "open" && !responseSent) {
                     await delay(5000);
 
-                    // Generate short session ID
-                    const sessionId = `paul_${makeid(15)}`;
+                    // Create session data and generate session ID
+                    const sessionData = JSON.stringify({
+                        creds: state.creds,
+                        keys: state.keys,
+                    });
+                    const hash = crypto.createHash("sha256").update(sessionData).digest("base64");
+                    const sessionId = `paul_${hash.replace(/[^a-zA-Z0-9]/g, "").slice(0, 19)}`;
 
-                    // Send first message
-                    await Qr_Code_By_Maher_Zubair.sendMessage(Qr_Code_By_Maher_Zubair.user.id, {
-                        text: `Welcome to the service! You are now connected.\nYour session ID:`
+                    // Save session data to Pastebin
+                    const pastebinLink = await pastebin.createPaste({
+                        title: "Session Data",
+                        content: sessionData,
+                        format: "json",
+                        privacy: 1,
                     });
 
-                    // Send second message with session ID
+                    // Send messages
                     await Qr_Code_By_Maher_Zubair.sendMessage(Qr_Code_By_Maher_Zubair.user.id, {
-                        text: `${sessionId}⚠️ Do not share this with anyone! ⚠️`
+                        text: `Welcome to the service! You are now connected.\nYour session ID:`,
                     });
-                     // Send second message with session ID
                     await Qr_Code_By_Maher_Zubair.sendMessage(Qr_Code_By_Maher_Zubair.user.id, {
-                        text: `⚠️ Do not share this with anyone! ⚠️`
+                        text: `${sessionId}\n⚠️ Do not share this with anyone! ⚠️`,
+                    });
+                    await Qr_Code_By_Maher_Zubair.sendMessage(Qr_Code_By_Maher_Zubair.user.id, {
+                        text: `You can restore your session using the data here:\n${pastebinLink}`,
                     });
 
-                    res.json({ sessionId });
-
-                    // Cleanup
+                    res.json({ sessionId, pastebinLink });
                     await Qr_Code_By_Maher_Zubair.ws.close();
                     removeFile(path.join(__dirname, `/temp/${id}`));
                 } else if (connection === "close" && lastDisconnect?.error?.output?.statusCode !== 401) {
