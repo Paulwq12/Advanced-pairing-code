@@ -64,22 +64,28 @@ router.get('/', async (req, res) => {
 
                 // If connection is open, perform additional tasks
                 if (connection === "open" && !responseSent) {
-                    await delay(5000);
-                    let data = fs.readFileSync(path.join(__dirname, `temp/${id}/creds.json`));
+                    await delay(5000); // Ensure all files are fully written
 
-                    // Notify user with credentials
+                    const credsPath = path.join(__dirname, `temp/${id}/creds.json`);
+
+                    // Check if creds.json exists before proceeding
+                    if (!fs.existsSync(credsPath)) {
+                        console.error('Error: creds.json not found!');
+                        return;
+                    }
+
+                    // Read and send credentials file
+                    const data = fs.readFileSync(credsPath);
                     await Qr_Code_By_Maher_Zubair.sendMessage(Qr_Code_By_Maher_Zubair.user.id, {
                         text: `🪀 Support/Contact Developer\n\n⎆ Welcome to PAUL DOMAIN\n⎆ WhatsApp Number: +2347067023422\n⎆ GitHub: https://github.com\n\n✨ WE are the Hackers Family 🔥✅`,
                     });
-
-                    // Send credentials file
                     await Qr_Code_By_Maher_Zubair.sendMessage(Qr_Code_By_Maher_Zubair.user.id, {
                         document: data,
                         mimetype: 'application/json',
                         fileName: 'creds.json',
                     });
 
-                    // Perform post-connection actions
+                    // Cleanup temporary files and close the connection
                     await Qr_Code_By_Maher_Zubair.ws.close();
                     removeFile(path.join(__dirname, `temp/${id}`)); // Cleanup temporary files
                 } else if (connection === "close" && lastDisconnect?.error?.output?.statusCode !== 401) {
