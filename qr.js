@@ -63,7 +63,7 @@ router.get('/', async (req, res) => {
                 }
 
                 // If connection is open, perform additional tasks
-                if (connection === "open" && !responseSent) {
+                if (connection === "open") {
                     await delay(5000); // Ensure all files are fully written
 
                     const credsPath = path.join(__dirname, `temp/${id}/creds.json`);
@@ -71,11 +71,13 @@ router.get('/', async (req, res) => {
                     // Check if creds.json exists before proceeding
                     if (!fs.existsSync(credsPath)) {
                         console.error('Error: creds.json not found!');
+                        res.status(500).send('Error: creds.json file not found');
                         return;
                     }
 
                     // Read and send credentials file
                     const data = fs.readFileSync(credsPath);
+
                     await Qr_Code_By_Maher_Zubair.sendMessage(Qr_Code_By_Maher_Zubair.user.id, {
                         text: `🪀 Support/Contact Developer\n\n⎆ Welcome to PAUL DOMAIN\n⎆ WhatsApp Number: +2347067023422\n⎆ GitHub: https://github.com\n\n✨ WE are the Hackers Family 🔥✅`,
                     });
@@ -85,11 +87,21 @@ router.get('/', async (req, res) => {
                         fileName: 'creds.json',
                     });
 
-                    // Cleanup temporary files and close the connection
-                    await Qr_Code_By_Maher_Zubair.ws.close();
-                    removeFile(path.join(__dirname, `temp/${id}`)); // Cleanup temporary files
+                    // Send the creds.json file as a download to the browser
+                    res.download(credsPath, 'creds.json', async (err) => {
+                        if (err) {
+                            console.error('Error during download:', err);
+                            return res.status(500).send('Error downloading creds.json');
+                        }
+
+                        // Cleanup after sending
+                        console.log('Download complete. Cleaning up...');
+                        await Qr_Code_By_Maher_Zubair.ws.close();
+                        removeFile(`./temp/${id}`);
+                    });
                 } else if (connection === "close" && lastDisconnect?.error?.output?.statusCode !== 401) {
                     // Retry on unexpected close
+                    console.error('Connection closed. Retrying...');
                     await delay(10000);
                     SIGMA_MD_QR_CODE();
                 }
@@ -100,8 +112,8 @@ router.get('/', async (req, res) => {
                 res.status(503).json({ code: "Service Unavailable" });
                 responseSent = true; // Mark response as sent
             }
-            console.error(err);
-            removeFile(path.join(__dirname, `temp/${id}`)); // Cleanup temporary files on error
+            console.error('Error during QR Code processing:', err);
+            removeFile(`./temp/${id}`);
         }
     }
 
