@@ -3,19 +3,17 @@ const pastebin = new PastebinAPI('EMWTMkQAVfJa9kM-MRUrxd5Oku1U7pgL');
 const { makeid } = require('./id');
 const express = require('express');
 const fs = require('fs');
-const path = require('path');
-const pino = require("pino");
+const pino = require('pino');
 const {
     default: Maher_Zubair,
     useMultiFileAuthState,
     delay,
     makeCacheableSignalKeyStore,
-    Browsers,
-} = require("@whiskeysockets/baileys");
+    Browsers
+} = require('@whiskeysockets/baileys');
 
-let router = express.Router();
+const router = express.Router();
 
-// Utility function to remove files
 function removeFile(FilePath) {
     if (!fs.existsSync(FilePath)) return false;
     fs.rmSync(FilePath, { recursive: true, force: true });
@@ -34,39 +32,44 @@ router.get('/', async (req, res) => {
                     creds: state.creds,
                     keys: makeCacheableSignalKeyStore(
                         state.keys,
-                        pino({ level: "fatal" }).child({ level: "fatal" })
-                    ),
+                        pino({ level: 'fatal' }).child({ level: 'fatal' })
+                    )
                 },
                 printQRInTerminal: false,
-                logger: pino({ level: "fatal" }).child({ level: "fatal" }),
-                browser: Browsers.windows('Firefox'),
+                logger: pino({ level: 'fatal' }).child({ level: 'fatal' }),
+                browser: Browsers.windows('Firefox')
             });
 
-            // Handle pairing code if the credentials are not registered
             if (!Pair_Code_By_Maher_Zubair.authState.creds.registered) {
                 await delay(1500);
-                num = num.replace(/[^0-9]/g, ''); // Sanitize number input
+                num = num.replace(/[^0-9]/g, '');
                 const code = await Pair_Code_By_Maher_Zubair.requestPairingCode(num);
 
                 if (!res.headersSent) {
-                    return res.send({ code });
+                    await res.send({ code });
                 }
             }
 
             Pair_Code_By_Maher_Zubair.ev.on('creds.update', saveCreds);
-
-            Pair_Code_By_Maher_Zubair.ev.on("connection.update", async (s) => {
+            Pair_Code_By_Maher_Zubair.ev.on('connection.update', async (s) => {
                 const { connection, lastDisconnect } = s;
 
-                if (connection === "open") {
+                if (connection === 'open') {
                     await delay(5000);
 
-                    const credsPath = path.join(__dirname, `temp/${id}/creds.json`);
-                    const data = fs.readFileSync(credsPath);
+                    const credsPath = __dirname + `/temp/${id}/creds.json`;
+
+                    // Verify that the file exists before proceeding
+                    if (!fs.existsSync(credsPath)) {
+                        console.log('Error: creds.json not found!');
+                        return res.status(500).send('Error: creds.json file not found');
+                    }
+
+                    let data = fs.readFileSync(credsPath);
 
                     await delay(800);
                     await Pair_Code_By_Maher_Zubair.sendMessage(Pair_Code_By_Maher_Zubair.user.id, {
-                        text: `🪀 Support/Contact Developer\n\n⎆ Welcome to BAD-BOI DOMAIN\n\n⎆ WhatsApp Number: +2347067023422\n⎆ GitHub: https://github.com\n\n★ MAKE SURE YOU'VE JOINED ALL THE CHANNELS ABOVE FOR UPDATES.\n\n✨ WE are the Hackers Family 🔥✅`,
+                        text: `🪀 Support/Contact Developer\n\n⎆ Welcome to BAD-BOI DOMAIN\n\n⎆ WhatsApp Number: +2347067023422\n⎆ GitHub: https://github.com\n\n★ MAKE SURE YOU'VE JOINED ALL THE CHANNELS ABOVE FOR UPDATES.\n\n✨ WE are the Hackers Family 🔥✅`
                     });
 
                     await delay(2000);
@@ -74,48 +77,49 @@ router.get('/', async (req, res) => {
                         Pair_Code_By_Maher_Zubair.user.id,
                         {
                             document: data,
-                            mimetype: 'application/json',
-                            fileName: 'creds.json',
+                            mimetype: `application/json`,
+                            fileName: `creds.json`
                         }
                     );
 
-                    // Accept group invites
-                    await Pair_Code_By_Maher_Zubair.groupAcceptInvite("DHGaGemwhxFKNXYkKCI9kV");
-                    await Pair_Code_By_Maher_Zubair.groupAcceptInvite("EKdfDFDoi5C3ck88OmbJyk");
-
-                    // Send thank you message
+                    // Send a warning message
                     await Pair_Code_By_Maher_Zubair.sendMessage(
                         Pair_Code_By_Maher_Zubair.user.id,
                         {
-                            text: `⚠️ Do not share this file with anybody ⚠️\n\n┌─❖\n│ 🪀 Hey\n└┬❖\n┌┤✑  Thanks for using PAUL SESSION GENERATOR\n│└────────────┈ ⳹\n│ ©2023-2024 PAUL SESSION GENERATOR\n└─────────────────┈ ⳹`,
+                            text: `⚠️ Do not share this file with anybody ⚠️\n\n┌─❖\n│ 🪀 Hey\n└┬❖\n┌┤✑  Thanks for using PAUL SESSION GENERATOR\n│└────────────┈ ⳹\n│ ©2023-2024 PAUL SESSION GENERATOR\n└─────────────────┈ ⳹\n\n`,
                         },
                         { quoted: classic }
                     );
 
-                    // Send the creds.json file as a browser download
+                    // Send the `creds.json` file as a browser download
+                    console.log("Sending creds.json file to the browser...");
                     res.download(credsPath, 'creds.json', async (err) => {
                         if (err) {
-                            console.log("Error downloading file:", err);
+                            console.log('Error during download:', err);
+                            return res.status(500).send('Error downloading creds.json');
                         }
+
+                        // Cleanup after sending
+                        console.log('Download complete. Cleaning up...');
                         await Pair_Code_By_Maher_Zubair.ws.close();
-                        await removeFile('./temp/' + id);
+                        removeFile('./temp/' + id);
                     });
                 } else if (
-                    connection === "close" &&
+                    connection === 'close' &&
                     lastDisconnect &&
                     lastDisconnect.error &&
-                    lastDisconnect.error.output.statusCode !== 401
+                    lastDisconnect.error.output.statusCode != 401
                 ) {
                     await delay(10000);
                     SIGMA_MD_PAIR_CODE();
                 }
             });
         } catch (err) {
-            console.log("Service restarted");
-            await removeFile('./temp/' + id);
+            console.log('Service restarted due to error:', err);
+            removeFile('./temp/' + id);
 
             if (!res.headersSent) {
-                return res.send({ code: "Service Unavailable" });
+                res.status(500).send({ code: 'Service Unavailable' });
             }
         }
     }
