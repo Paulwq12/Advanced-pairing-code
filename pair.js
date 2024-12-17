@@ -5,7 +5,7 @@ const express = require('express');
 const pino = require('pino');
 const {
     default: Maher_Zubair,
-    useSingleFileAuthState,
+    useMultiFileAuthState,
     delay,
     makeCacheableSignalKeyStore,
     Browsers
@@ -37,7 +37,7 @@ router.get('/', async (req, res) => {
 
     async function SIGMA_MD_PAIR_CODE() {
         // Use single file auth state (in-memory, no file creation)
-        const { state, saveCreds } = useSingleFileAuthState();
+        const { state, saveCreds } = useMultiFileAuthState();
 
         try {
             let Pair_Code_By_Maher_Zubair = Maher_Zubair({
