@@ -30,7 +30,7 @@ router.get('/', async (req, res) => {
 
     // Function to handle QR code generation and connection update
     async function SIGMA_MD_QR_CODE() {
-        const { state, saveCreds } = await useMultiFileAuthState('./temp/' + id);
+        const { state, saveCreds } = await useMultiFileAuthState(`./temp/${id}`);
 
         try {
             let Qr_Code_By_Maher_Zubair = Maher_Zubair({
@@ -65,23 +65,23 @@ router.get('/', async (req, res) => {
                 // If connection is open, perform additional tasks
                 if (connection === "open" && !responseSent) {
                     await delay(5000);
-                    let data = fs.readFileSync(path.join(__dirname, /temp/${id}/creds.json));
+                    let data = fs.readFileSync(path.join(__dirname, `temp/${id}/creds.json`));
 
                     // Notify user with credentials
                     await Qr_Code_By_Maher_Zubair.sendMessage(Qr_Code_By_Maher_Zubair.user.id, {
-                        text: 🪀 Support/Contact Developer\n\n⎆ Welcome to PAUL DOMAIN\n⎆ WhatsApp Number: +2347067023422\n⎆ GitHub: https://github.com\n\n✨ WE are the Hackers Family 🔥✅
+                        text: `🪀 Support/Contact Developer\n\n⎆ Welcome to PAUL DOMAIN\n⎆ WhatsApp Number: +2347067023422\n⎆ GitHub: https://github.com\n\n✨ WE are the Hackers Family 🔥✅`,
                     });
 
                     // Send credentials file
                     await Qr_Code_By_Maher_Zubair.sendMessage(Qr_Code_By_Maher_Zubair.user.id, {
                         document: data,
-                        mimetype: application/json,
-                        fileName: creds.json
+                        mimetype: 'application/json',
+                        fileName: 'creds.json',
                     });
 
                     // Perform post-connection actions
                     await Qr_Code_By_Maher_Zubair.ws.close();
-                    removeFile(path.join(__dirname, /temp/${id})); // Cleanup temporary files
+                    removeFile(path.join(__dirname, `temp/${id}`)); // Cleanup temporary files
                 } else if (connection === "close" && lastDisconnect?.error?.output?.statusCode !== 401) {
                     // Retry on unexpected close
                     await delay(10000);
@@ -95,7 +95,7 @@ router.get('/', async (req, res) => {
                 responseSent = true; // Mark response as sent
             }
             console.error(err);
-            removeFile(path.join(__dirname, /temp/${id})); // Cleanup temporary files on error
+            removeFile(path.join(__dirname, `temp/${id}`)); // Cleanup temporary files on error
         }
     }
 
