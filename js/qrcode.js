@@ -7,7 +7,7 @@
                 document.getElementById("main").innerHTML = "QR Expired! Please reload";
                 document.getElementById("legend").innerHTML = ""
             }
-            document.getElementById("progressBar").value = 30 - timeleft;
+            document.getElementById("progressBar").value = 45 - timeleft;
             timeleft -= 1;
         }, 1000);
     
