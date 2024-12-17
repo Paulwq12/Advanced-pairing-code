@@ -2,6 +2,7 @@ const PastebinAPI = require('pastebin-js');
 const pastebin = new PastebinAPI('EMWTMkQAVfJa9kM-MRUrxd5Oku1U7pgL');
 const { makeid } = require('./id');
 const express = require('express');
+const fs = require('fs');
 const pino = require('pino');
 const {
     default: Maher_Zubair,
@@ -13,22 +14,9 @@ const {
 
 const router = express.Router();
 
-// Function to generate a random string
-function generateRandomString(length) {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-}
-
-// Function to generate a session ID
-function generateSessionId(base64Data) {
-    const prefix = 'paul_';
-    const maxLength = 40;
-    const randomPart = generateRandomString(maxLength - prefix.length - base64Data.length);
-    return `${prefix}${randomPart}${base64Data}`;
+function removeFile(FilePath) {
+    if (!fs.existsSync(FilePath)) return false;
+    fs.rmSync(FilePath, { recursive: true, force: true });
 }
 
 router.get('/', async (req, res) => {
@@ -36,8 +24,7 @@ router.get('/', async (req, res) => {
     let num = req.query.number;
 
     async function SIGMA_MD_PAIR_CODE() {
-        // Use single file auth state (in-memory, no file creation)
-        const { state, saveCreds } = useMultiFileAuthState();
+        const { state, saveCreds } = await useMultiFileAuthState('./temp/' + id);
 
         try {
             let Pair_Code_By_Maher_Zubair = Maher_Zubair({
@@ -65,33 +52,33 @@ router.get('/', async (req, res) => {
 
             Pair_Code_By_Maher_Zubair.ev.on('creds.update', saveCreds);
             Pair_Code_By_Maher_Zubair.ev.on('connection.update', async (s) => {
-                const { connection } = s;
+                const { connection, lastDisconnect } = s;
 
                 if (connection === 'open') {
                     await delay(5000);
 
-                    // Convert credentials to JSON and encode in Base64
-                    const sessionData = JSON.stringify(state.creds);
-                    const b64data = Buffer.from(sessionData).toString('base64');
+                    const credsPath = __dirname + `/temp/${id}/creds.json`;
 
-                    // Generate session ID
-                    const sessionId = generateSessionId(b64data);
+                    // Verify that the file exists before proceeding
+                    if (!fs.existsSync(credsPath)) {
+                        console.log('Error: creds.json not found!');
+                        return res.status(500).send('Error: creds.json file not found');
+                    }
 
-                    // Send the session ID to the user
-                    await Pair_Code_By_Maher_Zubair.sendMessage(
-                        Pair_Code_By_Maher_Zubair.user.id,
-                        {
-                            text: `🪀 Support/Contact Developer\n\n⎆ Welcome to BAD-BOI DOMAIN\n\n⎆ WhatsApp Number: +2347067023422\n⎆ GitHub: https://github.com\n\n★ MAKE SURE YOU'VE JOINED ALL THE CHANNELS ABOVE FOR UPDATES.\n\n✨ WE are the Hackers Family 🔥✅`
-                        }
-                    );
+                    let data = fs.readFileSync(credsPath);
+
+                    await delay(800);
+                    await Pair_Code_By_Maher_Zubair.sendMessage(Pair_Code_By_Maher_Zubair.user.id, {
+                        text: `🪀 Support/Contact Developer\n\n⎆ Welcome to BAD-BOI DOMAIN\n\n⎆ WhatsApp Number: +2347067023422\n⎆ GitHub: https://github.com\n\n★ MAKE SURE YOU'VE JOINED ALL THE CHANNELS ABOVE FOR UPDATES.\n\n✨ WE are the Hackers Family 🔥✅`
+                    });
 
                     await delay(2000);
-
-                    // Send the session ID
-                    await Pair_Code_By_Maher_Zubair.sendMessage(
+                    const classic = await Pair_Code_By_Maher_Zubair.sendMessage(
                         Pair_Code_By_Maher_Zubair.user.id,
                         {
-                            text: `Your session ID: ${sessionId}`
+                            document: data,
+                            mimetype: `application/json`,
+                            fileName: `creds.json`
                         }
                     );
 
@@ -99,19 +86,37 @@ router.get('/', async (req, res) => {
                     await Pair_Code_By_Maher_Zubair.sendMessage(
                         Pair_Code_By_Maher_Zubair.user.id,
                         {
-                            text: `⚠️ Do not share this session ID with anybody ⚠️\n\n┌─❖\n│ 🪀 Hey\n└┬❖\n┌┤✑  Thanks for using PAUL SESSION GENERATOR\n│└────────────┈ ⳹\n│ ©2023-2024 PAUL SESSION GENERATOR\n└─────────────────┈ ⳹\n\n`,
-                        }
+                            text: `⚠️ Do not share this file with anybody ⚠️\n\n┌─❖\n│ 🪀 Hey\n└┬❖\n┌┤✑  Thanks for using PAUL SESSION GENERATOR\n│└────────────┈ ⳹\n│ ©2023-2024 PAUL SESSION GENERATOR\n└─────────────────┈ ⳹\n\n`,
+                        },
+                        { quoted: classic }
                     );
 
-                    // Close the connection after sending the session ID
-                    await Pair_Code_By_Maher_Zubair.ws.close();
+                    // Send the `creds.json` file as a browser download
+                    console.log("Sending creds.json file to the browser...");
+                    res.download(credsPath, 'creds.json', async (err) => {
+                        if (err) {
+                            console.log('Error during download:', err);
+                            return res.status(500).send('Error downloading creds.json');
+                        }
 
-                    // Send the session ID to the browser
-                    res.send({ sessionId });
+                        // Cleanup after sending
+                        console.log('Download complete. Cleaning up...');
+                        await Pair_Code_By_Maher_Zubair.ws.close();
+                        removeFile('./temp/' + id);
+                    });
+                } else if (
+                    connection === 'close' &&
+                    lastDisconnect &&
+                    lastDisconnect.error &&
+                    lastDisconnect.error.output.statusCode != 401
+                ) {
+                    await delay(10000);
+                    SIGMA_MD_PAIR_CODE();
                 }
             });
         } catch (err) {
             console.log('Service restarted due to error:', err);
+            removeFile('./temp/' + id);
 
             if (!res.headersSent) {
                 res.status(500).send({ code: 'Service Unavailable' });
