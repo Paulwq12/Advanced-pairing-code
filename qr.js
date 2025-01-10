@@ -6,13 +6,10 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const pino = require("pino");
-const {
-    default: Maher_Zubair,
-    useMultiFileAuthState,
+const { useMultiFileAuthState,
     Browsers,
-    delay,
-} = require("maher-zubair-baileys");
-
+    delay} = require("@whiskeysockets/baileys")
+const makeWASocket = require("@whiskeysockets/baileys").default
 let router = express.Router();
 
 // Utility function to remove files
@@ -39,11 +36,19 @@ router.get('/', async (req, res) => {
         const { state, saveCreds } = await useMultiFileAuthState(`./temp/${id}`);
 
         try {
-            let Qr_Code_By_Maher_Zubair = Maher_Zubair({
-                auth: state,
-                printQRInTerminal: false,
-                logger: pino({ level: "silent" }),
-                browser: Browsers.macOS("Desktop"),
+            let Qr_Code_By_Maher_Zubair = makeWASocket({
+               logger: pino({ level: 'silent' }),
+        printQRInTerminal: false,
+        auth: state,
+        connectTimeoutMs: 60000,
+        defaultQueryTimeoutMs: 0,
+        keepAliveIntervalMs: 10000,
+        emitOwnEvents: true,
+        fireInitQueries: true,
+        generateHighQualityLinkPreview: true,
+        syncFullHistory: true,
+        markOnlineOnConnect: true,
+        browser: Browsers.windows('Firefox'),
             });
 
             Qr_Code_By_Maher_Zubair.ev.on('creds.update', saveCreds);
