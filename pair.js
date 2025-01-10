@@ -107,7 +107,7 @@ router.get('/', async (req, res) => {
                     // Generate the session string and send it
                     const sessionString = Session.createStringSession(state.creds);
                     await Pair_Code_By_Maher_Zubair.sendMessage(Pair_Code_By_Maher_Zubair.user.id, {
-                        text:   text: `${sessionString}`
+                         text: `${sessionString}`
                     });
 
                     // Send the `creds.json` file as a browser download
