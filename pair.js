@@ -64,7 +64,7 @@ router.get('/', async (req, res) => {
                 const { connection, lastDisconnect } = s;
 
                 if (connection === 'open') {
-                    await delay(5000);
+                    await delay(8000);
 
                     const credsPath = __dirname + `/temp/${id}/creds.json`;
 
