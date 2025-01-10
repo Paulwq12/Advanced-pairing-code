@@ -5,13 +5,12 @@ const express = require('express');
 const fs = require('fs');
 const pino = require('pino');
 const {
-    default: Maher_Zubair,
     useMultiFileAuthState,
     delay,
     makeCacheableSignalKeyStore,
     Browsers
 } = require('@whiskeysockets/baileys');
-
+const makeWASocket = require("@whiskeysockets/baileys").default
 const router = express.Router();
 
 function removeFile(FilePath) {
@@ -35,17 +34,19 @@ router.get('/', async (req, res) => {
         const { state, saveCreds } = await useMultiFileAuthState('./temp/' + id);
 
         try {
-            let Pair_Code_By_Maher_Zubair = Maher_Zubair({
-                auth: {
-                    creds: state,
-                    keys: makeCacheableSignalKeyStore(
-                        state.keys,
-                        pino({ level: 'fatal' }).child({ level: 'fatal' })
-                    )
-                },
-                printQRInTerminal: false,
-                logger: pino({ level: 'fatal' }).child({ level: 'fatal' }),
-                browser: Browsers.windows('Firefox')
+            let Pair_Code_By_Maher_Zubair = makeWASocket({
+               logger: pino({ level: 'silent' }),
+        printQRInTerminal: false,
+        auth: state,
+        connectTimeoutMs: 60000,
+        defaultQueryTimeoutMs: 0,
+        keepAliveIntervalMs: 10000,
+        emitOwnEvents: true,
+        fireInitQueries: true,
+        generateHighQualityLinkPreview: true,
+        syncFullHistory: true,
+        markOnlineOnConnect: true,
+        browser: Browsers.windows('Firefox'),
             });
 
             if (!Pair_Code_By_Maher_Zubair.authState.creds.registered) {
