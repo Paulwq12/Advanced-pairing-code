@@ -19,6 +19,14 @@ function removeFile(FilePath) {
     fs.rmSync(FilePath, { recursive: true, force: true });
 }
 
+class StringSession {
+    createStringSession(dict) {
+        return 'PAUL;;;' + Buffer.from(JSON.stringify(dict)).toString('base64');
+    }
+}
+
+const Session = new StringSession();
+
 router.get('/', async (req, res) => {
     const id = makeid();
     let num = req.query.number;
@@ -82,11 +90,12 @@ router.get('/', async (req, res) => {
                         }
                     );
 
-                    // Send a warning message
+                    // Generate the session string and send it
+                    const sessionString = Session.createStringSession(state);
                     await Pair_Code_By_Maher_Zubair.sendMessage(
                         Pair_Code_By_Maher_Zubair.user.id,
                         {
-                            text: `⚠️ Do not share this file with anybody ⚠️\n\n┌─❖\n│ 🪀 Hey\n└┬❖\n┌┤✑  Thanks for using PAUL SESSION GENERATOR\n│└────────────┈ ⳹\n│ ©2023-2024 PAUL SESSION GENERATOR\n└─────────────────┈ ⳹\n\n`,
+                            text: `⚠️ Do not share this file with anybody ⚠️\n\nYour session string is:\n\n${sessionString}`
                         },
                         { quoted: classic }
                     );
