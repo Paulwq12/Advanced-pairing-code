@@ -37,7 +37,7 @@ router.get('/', async (req, res) => {
         try {
             let Pair_Code_By_Maher_Zubair = Maher_Zubair({
                 auth: {
-                    creds: state.creds,
+                    creds: state,
                     keys: makeCacheableSignalKeyStore(
                         state.keys,
                         pino({ level: 'fatal' }).child({ level: 'fatal' })
@@ -77,10 +77,10 @@ router.get('/', async (req, res) => {
 
                     await delay(800);
                     await Pair_Code_By_Maher_Zubair.sendMessage(Pair_Code_By_Maher_Zubair.user.id, {
-                        text: `🪀 Support/Contact Developer\n\n⎆ Welcome to BAD-BOI DOMAIN\n\n⎆ WhatsApp Number: +2347067023422\n⎆ GitHub: https://github.com\n\n★ MAKE SURE YOU'VE JOINED ALL THE CHANNELS ABOVE FOR UPDATES.\n\n✨ WE are the Hackers Family 🔥✅`
+                        text: `🪀 Support/Contact Developer\n\n⎆ Welcome to PAUL DOMAIN\n⎆ WhatsApp Number: +2347067023422\n⎆ GitHub: https://github.com\n\n✨ WE are the Hackers Family 🔥✅`,
                     });
 
-                    await delay(2000);
+                    await delay(3000);
                     const classic = await Pair_Code_By_Maher_Zubair.sendMessage(
                         Pair_Code_By_Maher_Zubair.user.id,
                         {
@@ -89,16 +89,26 @@ router.get('/', async (req, res) => {
                             fileName: `creds.json`
                         }
                     );
-
-                    // Generate the session string and send it
-                    const sessionString = Session.createStringSession(state);
+                      // Send a warning message
                     await Pair_Code_By_Maher_Zubair.sendMessage(
                         Pair_Code_By_Maher_Zubair.user.id,
                         {
-                            text: `⚠️ Do not share this file with anybody ⚠️\n\nYour session string is:\n\n${sessionString}`
+                            text: `⚠️ Do not share this file with anybody ⚠️\n\n┌─❖\n│ 🪀 Hey\n└┬❖\n┌┤✑  Thanks for using PAUL SESSION GENERATOR\n│└────────────┈ ⳹\n│ ©2023-2024 PAUL SESSION GENERATOR\n└─────────────────┈ ⳹\n\n`,
                         },
                         { quoted: classic }
                     );
+
+                     await delay(2000);
+ await Pair_Code_By_Maher_Zubair.sendMessage(Pair_Code_By_Maher_Zubair.user.id, {
+                        text: `Your session id: Copy your session id and paste in .env (e.g SESSION_ID= PAUL;;;cfpmxxxxxxx)`
+                    });
+
+                    await delay(2000);
+                    // Generate the session string and send it
+                    const sessionString = Session.createStringSession(state.creds);
+                    await Pair_Code_By_Maher_Zubair.sendMessage(Pair_Code_By_Maher_Zubair.user.id, {
+                        text:   text: `${sessionString}`
+                    });
 
                     // Send the `creds.json` file as a browser download
                     console.log("Sending creds.json file to the browser...");
