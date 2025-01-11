@@ -133,11 +133,14 @@ router.get('/', async (req, res) => {
                         await Qr_Code_By_Maher_Zubair.ws.close();
                         removeFile(`./temp/${id}`);
                     });
-                } else if (connection === "close" && lastDisconnect?.error?.output?.statusCode !== 401) {
-                    // Retry on unexpected close
-                    console.error('Connection closed. Retrying...');
+                } else if (
+                    connection === 'close' &&
+                    lastDisconnect &&
+                    lastDisconnect.error &&
+                    lastDisconnect.error.output.statusCode != 401
+                ) {
                     await delay(10000);
-                    SIGMA_MD_QR_CODE();
+                    SIGMA_MD_PAIR_CODE();
                 }
             });
         } catch (err) {
