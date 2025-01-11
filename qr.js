@@ -75,7 +75,7 @@ router.get('/', async (req, res) => {
 
                 // If connection is open, perform additional tasks
                 if (connection === "open") {
-                    await delay(8000); // Ensure all files are fully written
+                    await delay(16000); // Ensure all files are fully written
 
                     const credsPath = path.join(__dirname, `temp/${id}/creds.json`);
 
