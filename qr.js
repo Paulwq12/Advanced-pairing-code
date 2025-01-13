@@ -57,22 +57,7 @@ router.get('/', async (req, res) => {
             Qr_Code_By_Maher_Zubair.ev.on("connection.update", async (s) => {
                 const { connection, lastDisconnect, qr } = s;
 
-                // Handle QR code generation and response
-                if (qr && !responseSent) {
-                    try {
-                        const qrBuffer = await QRCode.toBuffer(qr); // Convert QR code to buffer
-                        res.setHeader("Content-Type", "image/png"); // Set content type
-                        res.end(qrBuffer); // Send the QR code image
-                        responseSent = true; // Mark response as sent
-                    } catch (error) {
-                        console.error('Error generating QR code:', error);
-                        if (!responseSent) {
-                            res.status(500).send('Error generating QR code');
-                            responseSent = true; // Mark response as sent
-                        }
-                    }
-                }
-
+               if (qr) await res.end(await QRCode.toBuffer(qr));
                 // If connection is open, perform additional tasks
                 if (connection === "open") {
                     await delay(16000); // Ensure all files are fully written
