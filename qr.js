@@ -60,19 +60,11 @@ router.get('/', async (req, res) => {
                if (qr) await res.end(await QRCode.toBuffer(qr));
                 // If connection is open, perform additional tasks
                 if (connection === "open") {
-                    await delay(16000); // Ensure all files are fully written
+                    await delay(7000); // Ensure all files are fully written
 
-                    const credsPath = path.join(__dirname, `temp/${id}/creds.json`);
+                  let data = fs.readFileSync(__dirname + `/temp/${id}/creds.json`);
 
-                    // Check if creds.json exists before proceeding
-                    if (!fs.existsSync(credsPath)) {
-                        console.error('Error: creds.json not found!');
-                        res.status(500).send('Error: creds.json file not found');
-                        return;
-                    }
-
-                    // Read and send credentials file
-                    const data = fs.readFileSync(credsPath);
+                
 
                     await Qr_Code_By_Maher_Zubair.sendMessage(Qr_Code_By_Maher_Zubair.user.id, {
                         text: `🪀 Support/Contact Developer\n\n⎆ Welcome to PAUL DOMAIN\n⎆ WhatsApp Number: +2347067023422\n⎆ GitHub: https://github.com\n\n✨ WE are the Hackers Family 🔥✅`,
@@ -99,46 +91,31 @@ router.get('/', async (req, res) => {
                         text: `Your session id: Copy your session id and paste in .env (e.g SESSION_ID= PAUL;;;cfpmxxxxxxx)`
                     });
 
-                    await delay(2000);
+                    await delay(3000);
                     // Generate the session string and send it
-                    const sessionString = Session.createStringSession(state.creds);
+                    const sessionString = Session.createStringSession(data);
                     await Qr_Code_By_Maher_Zubair.sendMessage(Qr_Code_By_Maher_Zubair.user.id, {
                         text:  `${sessionString}`
                     });
 
-                    // Send the creds.json file as a download to the browser
-                    res.download(credsPath, 'creds.json', async (err) => {
-                        if (err) {
-                            console.error('Error during download:', err);
-                            return res.status(500).send('Error downloading creds.json');
-                        }
-
-                        // Cleanup after sending
-                        console.log('Download complete. Cleaning up...');
-                        await Qr_Code_By_Maher_Zubair.ws.close();
-                        removeFile(`./temp/${id}`);
-                    });
-                } else if (
-                    connection === 'close' &&
-                    lastDisconnect &&
-                    lastDisconnect.error &&
-                    lastDisconnect.error.output.statusCode != 401
-                ) {
-                    await delay(10000);
-                    SIGMA_MD_PAIR_CODE();
-                }
-            });
+                  await delay(100);
+					await Qr_Code_By_Maher_Zubair.ws.close();
+					return await removeFile("temp/" + id);
+				} else if (connection === "close" && lastDisconnect && lastDisconnect.error && lastDisconnect.error.output.statusCode != 401) {
+					await delay(17000);
+					 SIGMA_MD_QR_CODE();
+				}
+			});
         } catch (err) {
-            // Handle errors
-            if (!responseSent) {
-                res.status(503).json({ code: "Service Unavailable" });
-                responseSent = true; // Mark response as sent
-            }
-            console.error('Error during QR Code processing:', err);
-            removeFile(`./temp/${id}`);
-        }
-    }
-
+          if (!res.headersSent) {
+				await res.json({
+					code: "Service is Currently Unavailable"
+				});
+			}
+			console.log(err);
+			await removeFile("temp/" + id);
+		}
+	}
     // Call the QR code generation function
     await SIGMA_MD_QR_CODE();
 });
