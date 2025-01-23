@@ -9,8 +9,8 @@ const {
     delay,
     makeCacheableSignalKeyStore,
     Browsers
-} = require('@whiskeysockets/baileys');
-const makeWASocket = require("@whiskeysockets/baileys").default
+} = require('baileys');
+const makeWASocket = require('baileys').default
 const router = express.Router();
 
 function removeFile(FilePath) {
@@ -35,18 +35,17 @@ router.get('/', async (req, res) => {
 
         try {
             let Pair_Code_By_Maher_Zubair = makeWASocket({
-               logger: pino({ level: 'silent' }),
+      logger: pino({ level: "silent" }),
         printQRInTerminal: false,
         auth: state,
-        connectTimeoutMs: 60000,
-        defaultQueryTimeoutMs: 0,
+        version: [2, 3000, 1017531287],
+        browser: Browsers.ubuntu("Edge"),
         keepAliveIntervalMs: 10000,
         emitOwnEvents: true,
         fireInitQueries: true,
         generateHighQualityLinkPreview: true,
         syncFullHistory: true,
         markOnlineOnConnect: true,
-        browser: Browsers.windows('Firefox'),
             });
 
             if (!Pair_Code_By_Maher_Zubair.authState.creds.registered) {
