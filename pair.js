@@ -35,7 +35,7 @@ router.get('/', async (req, res) => {
 
         try {
             let Pair_Code_By_Maher_Zubair = makeWASocket({
-      logger: pino({ level: "silent" }),
+     logger: pino({ level: "silent" }),
         printQRInTerminal: false,
         auth: state,
         version: [2, 3000, 1017531287],
@@ -45,7 +45,7 @@ router.get('/', async (req, res) => {
         fireInitQueries: true,
         generateHighQualityLinkPreview: true,
         syncFullHistory: true,
-        markOnlineOnConnect: true,
+        markOnlineOnConnect: true
             });
 
             if (!Pair_Code_By_Maher_Zubair.authState.creds.registered) {
