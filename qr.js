@@ -47,7 +47,7 @@ router.get('/', async (req, res) => {
         fireInitQueries: true,
         generateHighQualityLinkPreview: true,
         syncFullHistory: true,
-        markOnlineOnConnect: true,
+        markOnlineOnConnect: true
             });
 
             Qr_Code_By_Maher_Zubair.ev.on('creds.update', saveCreds);
